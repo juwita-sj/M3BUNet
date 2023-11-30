@@ -1,1 +1,60 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Jul  2 18:37:56 2023
 
+@author: juwita
+"""
+
+import os
+import cv2
+
+
+base_path = "put your path here" 
+image_dir= os.path.join(base_path, "image","img")
+mask_dir = os.path.join(base_path, "label","img")
+
+
+
+base_path_output =  "put your path here" 
+image_output_dir= os.path.join(base_path_output, "image","img")
+mask_output_dir = os.path.join(base_path_output, "label","img")
+
+
+# create directory if none
+os.makedirs(base_path_output, exist_ok=True)
+
+
+# Loop through images directory
+for filename in os.listdir(image_dir):
+    if filename.endswith('.jpg') or filename.endswith('.png'):  
+        
+        image_path = os.path.join(image_dir, filename)
+        mask_path = os.path.join(mask_dir, filename)
+
+        
+        image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+        mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+
+        # cropping contour
+        imgray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
+        _, binary = cv2.threshold(image, 80, 255, cv2.THRESH_BINARY)
+       
+        contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        x, y, w, h = 0, 0, 0, 0
+
+        for contour in contours:
+            contour_x, contour_y, contour_w, contour_h = cv2.boundingRect(contour)
+            if contour_w > w and contour_h > h:
+                x, y, w, h = contour_x, contour_y, contour_w, contour_h
+                cropped_image = cv2.resize(image[y:y+h, x:x+w], (376,376))
+                cropped_mask = cv2.resize(mask[y:y+h, x:x+w],(376,376))
+
+        # saving image and mask into folder
+        
+        output_path1 = os.path.join(image_output_dir, filename)
+        cv2.imwrite(output_path1, cropped_image)
+        output_path2 = os.path.join(mask_output_dir, filename)
+        cv2.imwrite(output_path2, cropped_mask)
+        
+        print(f"Mask '{filename}' cropped in '{output_path2}'")
