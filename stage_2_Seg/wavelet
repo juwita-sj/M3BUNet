@@ -1,1 +1,126 @@
+import os
+import pywt
+import cv2
+from glob import glob
+import shutil
+import numpy as np 
+
+base_path_input ="your path"
+
+folder_image = os.path.join(base_path_input, "image", "img")
+folder_mask = os.path.join(base_path_input, "label", "img")
+
+base_path_output = "your path"
+
+output_folder_image = os.path.join(base_path_output, "image", "img")
+output_folder_mask = os.path.join(base_path_output, "label", "img")
+
+# Load the dataset
+images = sorted(glob(os.path.join(folder_image, "*.png")))
+print(images)
+
+# List ekstensi file gambar yang ingin Anda proses (misalnya: .jpg, .png, .bmp)
+valid_extensions = ['.jpg', '.png', '.bmp']
+
+#DWT
+def apply_dwt(image_path, dbN):
+    
+    image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+
+    # DWT with debauchie
+    coeffs = pywt.dwt2(image, f'db{dbN}')  # Ganti 'bior2.2' dengan jenis wavelet orde kedua yang Anda inginkan
+
+    # taking (LL) dan frekuensi tinggi (LH, HL, HH)
+    LL, HH = coeffs
+    
+    # Resizing
+    LL = cv2.resize(LL, (image.shape[1], image.shape[0]))
+    HH = cv2.resize(HH, (image.shape[1], image.shape[0]))
+     
+    
+    high_frequency = image - LL
+    return LL,high_frequency
+
+
+for image_path in images:
+    if any(image_path.endswith(ext) for ext in valid_extensions):
+        file_name_without_extension = os.path.splitext(image_path)[0]
+        image_name = os.path.basename(file_name_without_extension)
+        print (image_name)
+        extension= os.path.splitext(image_path)[1]
+        print (image_path)
+       
+# Apply DWT
+        low_frequency, high_frequency = apply_dwt(image_path, 1)
+        low_frequency1, high_frequency1 = apply_dwt(image_path, 2)   
+        high_frequency = cv2.normalize(high_frequency, None, 0, 255, cv2.NORM_MINMAX)
+  
+# Simpan komponen frekuensi rendah (Low Frequency) ke dalam folder output  
+        low_frequency_output_path = os.path.join(output_folder_image,  image_name+"_1"+extension)
+        cv2.imwrite(low_frequency_output_path, low_frequency)
+            
+        
+        
+            
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+                 
+        
+        high_frequency_output_path = os.path.join(output_folder_image,  image_name+"_3"+extension)
+        print( low_frequency_output_path)
+        cv2.imwrite(high_frequency_output_path, high_frequency)
+        
+        # # Pastikan high_frequency adalah citra grayscale dengan tipe data yang benar
+        # # Normalisasi citra high frequency ke rentang 0-255
+        high_frequency1 = cv2.normalize(high_frequency1, None, 0, 255, cv2.NORM_MINMAX)
+        # #high_frequency = cv2.convertScaleAbs(high_frequency)
+        
+       
+        
+        # # Simpan komponen frekuensi tinggi (High Frequency) ke dalam folder output
+        high1_frequency_output_path = os.path.join(output_folder_image, image_name+"_4"+extension)
+        cv2.imwrite(high1_frequency_output_path, high_frequency1)
+        
+             
+        
+        
+        
+        # Dapatkan nama masker yang sesuai dengan gambar yang sedang diproses
+        #ini harus diingat urutan gambar nanti dalam folder 0 untuk before, 1 untuk ori, 2 order1, 3order2, 4 untuk after
+        mask_nameori = image_name+ extension
+        print (mask_nameori)
+        mask_path = os.path.join(folder_mask, mask_nameori)
+        print (mask_path)
+        mask_name = image_name+"_3"+extension 
+        mask_name1 =   image_name+"_4"+extension
+        imagenameori = image_name+extension 
+        print(imagenameori)
+        
+        
+        # Pastikan masker yang sesuai ada dan salin ke folder output masker
+        if os.path.exists(mask_path):
+            
+            shutil.copyfile(image_path,os.path.join(output_folder_image,imagenameori))
+    
+            shutil.copyfile(mask_path,os.path.join(output_folder_mask, mask_nameori))
+            
+            shutil.copyfile(mask_path, os.path.join(output_folder_mask, mask_name))
+            
+            shutil.copyfile(mask_path, os.path.join(output_folder_mask, mask_name1))
+           
+            
+            print(f"Saved {image_name} and {mask_name} to {output_folder_image} and {output_folder_mask}")
+        else:
+            print(f"Mask not found for {image_name}")
+
+
+
 
