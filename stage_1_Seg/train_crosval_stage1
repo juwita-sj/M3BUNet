@@ -285,31 +285,31 @@ if __name__ == "__main__":
                 
                 loss_and_metrics = model.evaluate(test_dataset, verbose=0)
 
-        loss_eval = loss_and_metrics[0]
-        calculate_auc_eval = loss_and_metrics[1]
-        specificity_eval = loss_and_metrics[2]
-        iou_eval = loss_and_metrics[3]
-        dice_coef_eval = loss_and_metrics[4]
-        dice_loss_eval = loss_and_metrics[5]
-        recall_eval = loss_and_metrics[6]
-        precision_eval = loss_and_metrics[7]
+                loss_eval = loss_and_metrics[0]
+                calculate_auc_eval = loss_and_metrics[1]
+                specificity_eval = loss_and_metrics[2]
+                iou_eval = loss_and_metrics[3]
+                dice_coef_eval = loss_and_metrics[4]
+                dice_loss_eval = loss_and_metrics[5]
+                recall_eval = loss_and_metrics[6]
+                precision_eval = loss_and_metrics[7]
         
        
-        metrics_to_save = [
-            loss_eval, calculate_auc_eval, specificity_eval, iou_eval, dice_coef_eval, dice_loss_eval, recall_eval, precision_eval
-            ]
+                metrics_to_save = [
+                    loss_eval, calculate_auc_eval, specificity_eval, iou_eval, dice_coef_eval, dice_loss_eval, recall_eval, precision_eval
+                ]
         
 
-        file_exists = os.path.isfile(filename)
-        headers = ["Loss", "AUC", "Specificity", "IoU", "Dice Coefficient", "Dice Loss", "Recall", "Precision"]
-        with open(filename, 'a', newline='') as csvfile:
-            writer = csv.writer(csvfile)
+                file_exists = os.path.isfile(filename)
+                headers = ["Loss", "AUC", "Specificity", "IoU", "Dice Coefficient", "Dice Loss", "Recall", "Precision"]
+                    with open(filename, 'a', newline='') as csvfile:
+                        writer = csv.writer(csvfile)
     
-    # Jika file belum ada, tulis header terlebih dahulu
+    # if file none:
             if not file_exists:
                 writer.writerow(headers)
     
-    # Menulis metrik
+    # write metric:
             writer.writerow(metrics_to_save)
         
         
@@ -324,38 +324,10 @@ if __name__ == "__main__":
                 csv_writer.writerow(['Total Training (Stage 2)', training_duration])
         
     
+       
     
     
-    
-            """ Plot the training and validation metrics for each fold """
-            plt.figure(figsize=(10, 5))
-            plt.title("Metrics")
-            plt.plot(history.history["dice_coef"], label="Training Dice Coef")
-            plt.plot(history.history["val_dice_coef"], label="Validation Dice Coef")
-            plt.xlabel("Epoch")
-            plt.ylabel("Dice Coefficient")
-            plt.legend()
-            plt.savefig(save_graphics_dice_rata)
-    
-            plt.figure(figsize=(10, 5))
-            plt.title("Metrics")
-            plt.plot(history.history["iou"], label="Training IOU")
-            plt.plot(history.history["val_iou"], label="Validation IOU")
-            plt.xlabel("Epoch")
-            plt.ylabel("IOU")
-            plt.legend()
-            plt.savefig(save_graphics_jaccard_rata)
-    
-            plt.figure(figsize=(10, 5))
-            plt.title("Metrics")
-            plt.plot(history.history["loss"], label="Training Loss")
-            plt.plot(history.history["val_loss"], label="Validation Loss")
-            plt.xlabel("Epoch")
-            plt.ylabel("Loss")
-            plt.legend()
-            plt.savefig(save_graphics_loss_rata)
-    
-        os.chdir('..')  # Kembali ke direktori utama setelah setiap run
-    print("Training selesai.")
+        os.chdir('..')  
+    print("Training done.")
 
 
